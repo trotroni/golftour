@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Golf Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="dashboard.css" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1 class="title">Golf Match Dashboard</h1>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>Trou</th>
+                <th class="player">Morg<br>RHAM</th>
+                <th class="player">JJ<br>DALY</th>
+                <th class="player">Patrick<br>WEED</th>
+                <th>PTS</th>
+                <th>STATUS</th>
+                <th>USA</th>
+                <th>EUR</th>
+                <th class="player">GREG</th>
+                <th class="player">MICK</th>
+            </tr>
+            </thead>
+
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    const tbody = document.getElementById('table-body');
+
+    function createSelect(value = 4) {
+        const select = document.createElement('select');
+        select.className = 'score-select';
+
+        for(let i = 1; i <= 9; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+
+            if(i === value) {
+                option.selected = true;
+            }
+
+            select.appendChild(option);
+        }
+
+        return select;
+    }
+
+    for(let hole = 1; hole <= 18; hole++) {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+      <td class="hole">N°${hole}</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="green">1</td>
+      <td>Au ${hole}</td>
+      <td class="green">1</td>
+      <td class="red">0</td>
+      <td></td>
+      <td></td>
+    `;
+
+        tr.children[1].appendChild(createSelect(5));
+        tr.children[2].appendChild(createSelect(5));
+        tr.children[3].appendChild(createSelect(5));
+        tr.children[8].textContent = '5';
+        tr.children[8].className = 'green';
+
+        tr.children[9].textContent = '4';
+        tr.children[9].className = 'red';
+
+        tbody.appendChild(tr);
+    }
+</script>
+
+</body>
+</html>
