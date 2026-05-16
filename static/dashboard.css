@@ -8,7 +8,7 @@
 body {
     font-family: 'Inter', sans-serif;
     color: white;
-    padding: 30px;
+
 }
 
 .container {
@@ -23,6 +23,7 @@ body {
     margin-bottom: 25px;
     flex-wrap: wrap;
     gap: 20px;
+    text-align: center;
 }
 
 .title {
@@ -68,11 +69,11 @@ body {
 }
 
 .card {
-    border-radius: 28px;
-    padding: 24px;
     border: 1px solid rgba(255,255,255,0.06);
     overflow-x: auto;
     box-shadow: 0 15px 45px rgba(0,0,0,0.4);
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 table {
@@ -89,6 +90,13 @@ th {
     border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
+thead th {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
 td {
     color: black;
     padding: 14px 10px;
@@ -102,7 +110,7 @@ tr:hover {
 
 .hole {
     font-weight: 800;
-    color: #38bdf8;
+    color: #005d86;
 }
 
 .player {
@@ -111,11 +119,12 @@ tr:hover {
     font-size: 14px;
 }
 
+
+
 .score-select {
     width: 50px;
-    height: 50px;
-    border: none;
-    border-radius: 16px;
+    height: 25px;
+    border-radius: 8px;
     color: black;
     font-size: 16px;
     font-weight: 700;
@@ -123,31 +132,33 @@ tr:hover {
     cursor: pointer;
     outline: none;
     transition: .2s ease;
-    border: 1px solid rgba(255,255,255,0.08);
     box-shadow:
             inset 0 1px 1px rgba(255,255,255,.05),
             0 5px 15px rgba(0,0,0,.25);
 }
 
 
-.green {
-    color: #4ade80;
+.blue {
+    color: white;
     font-weight: 800;
+    background: #0000ff;
 }
 
 .red {
-    color: #f87171;
+    color: black;
     font-weight: 800;
+    background: red;
 }
 
-.yellow {
-    color: #facc15;
+.grey {
+    color: black;
     font-weight: 800;
+    background: grey;
 }
 
 @media(max-width:900px){
     body {
-        padding: 14px;
+
     }
 
     .title {
@@ -155,6 +166,7 @@ tr:hover {
     }
 
     .card {
-        padding: 14px;
+        max-height: 100vh;
+        overflow-y: auto;
     }
 }

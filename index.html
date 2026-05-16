@@ -28,7 +28,6 @@
                 <th class="player">JJ<br>DALY</th>
                 <th class="player">Patrick<br>WEED</th>
                 <th>PTS</th>
-                <th>STATUS</th>
                 <th>USA</th>
                 <th>EUR</th>
                 <th class="player">GREG</th>
@@ -72,10 +71,10 @@
       <td></td>
       <td></td>
       <td></td>
-      <td class="green">1</td>
-      <td>Au ${hole}</td>
-      <td class="green">1</td>
+      <td class="grey">1</td>
+      <td class="blue">1</td>
       <td class="red">0</td>
+      <td>1</td>
       <td></td>
       <td></td>
     `;
@@ -84,7 +83,7 @@
         tr.children[2].appendChild(createSelect(5));
         tr.children[3].appendChild(createSelect(5));
         tr.children[8].textContent = '5';
-        tr.children[8].className = 'green';
+        tr.children[8].className = 'blue';
 
         tr.children[9].textContent = '4';
         tr.children[9].className = 'red';
