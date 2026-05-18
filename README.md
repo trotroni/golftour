@@ -11,7 +11,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # 2. Migrations (déjà incluses dans le repo)
+python manage.py makemigrations
 python manage.py migrate
+python manage.py collectstatic
 
 # 3. Lancer le serveur
 python manage.py runserver 0.0.0.0:8000

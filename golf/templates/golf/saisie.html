@@ -1,35 +1,89 @@
 {% extends 'golf/base.html' %}
-{% block title %}Trou {{ current_hole.number }} — Saisie {{ group }}{% endblock %}
+{% load golf_tags %}
+{% block title %}Saisie Groupe {{ group }} — Jour {{ day.day_number }}{% endblock %}
 
 {% block content %}
 <div class="saisie-page">
 
-    <!-- En-tête du trou -->
-    <div class="hole-header">
-        <div class="hole-badge">
-            Trou <span class="hole-num">{{ current_hole.number }}</span>
-            <span class="hole-total">/ {{ tournament.num_holes }}</span>
-        </div>
-        <div class="hole-day">Jour {{ day.day_number }}</div>
+    <div class="saisie-header">
+        <span class="saisie-title">Jour {{ day.day_number }}</span>
+        <a href="{% url 'resultats' day.id %}" class="btn btn-secondary btn-sm">📊 Résultats</a>
     </div>
 
-    <!-- Onglets groupe / résultats -->
+    <!-- Onglets groupes -->
     <div class="tabs">
         <a href="{% url 'saisie' day.id 1 %}"
            class="tab {% if group == 1 %}tab-active{% endif %}">
             Groupe 1
+            <span class="tab-players">
+                {% for p in all_players %}{% if p.saisie_group == 1 %}{{ p.name }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}
+            </span>
         </a>
         <a href="{% url 'saisie' day.id 2 %}"
            class="tab {% if group == 2 %}tab-active{% endif %}">
             Groupe 2
-        </a>
-        <a href="{% url 'resultats' day.id %}" class="tab">
-            📊 Score
+            <span class="tab-players">
+                {% for p in all_players %}{% if p.saisie_group == 2 %}{{ p.name }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}
+            </span>
         </a>
     </div>
 
-    <!-- Formulaire HTMX -->
-    {% include 'golf/partials/saisie_form.html' %}
+    <div class="table-wrap">
+        <table class="score-table">
+            <thead>
+                <tr>
+                    <th class="th-hole">Trou</th>
+                    {% for p in group_team1 %}
+                    <th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>
+                    {% endfor %}
+                    <th class="th-sep">PTS</th>
+                    <th class="th-team" style="color:{{ teams.0.color }}">{{ teams.0.name }}</th>
+                    <th class="th-team" style="color:{{ teams.1.color }}">{{ teams.1.name }}</th>
+                    {% for p in group_team2 %}
+                    <th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody id="score-tbody">
+                {% include 'golf/partials/saisie_tbody.html' %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if current_hole %}
+        {% if visible_holes %}
+            {% with last_hole=visible_holes|last %}
+                {% if last_hole.group_validated %}
+                <div class="already-validated">
+                    ✅ Groupe {{ group }} déjà validé pour le trou {{ current_hole.number }}.
+                    En attente de l'autre groupe…
+                </div>
+                {% else %}
+                <button class="btn btn-validate"
+                        hx-post="{% url 'validate_hole' current_hole.id group %}"
+                        hx-include=".score-select"
+                        hx-target="#score-tbody"
+                        hx-swap="innerHTML">
+                    ✅ Valider trou {{ current_hole.number }} — Groupe {{ group }}
+                </button>
+                {% endif %}
+            {% endwith %}
+        {% else %}
+        <button class="btn btn-validate"
+                hx-post="{% url 'validate_hole' current_hole.id group %}"
+                hx-include=".score-select"
+                hx-target="#score-tbody"
+                hx-swap="innerHTML">
+            ✅ Valider trou {{ current_hole.number }} — Groupe {{ group }}
+        </button>
+        {% endif %}
+    {% else %}
+    <div class="day-done-banner">
+        <span class="done-icon">✅</span>
+        <span>Tous les trous sont complétés !</span>
+        <a href="{% url 'resultats' day.id %}" class="btn btn-primary">Voir les résultats →</a>
+    </div>
+    {% endif %}
 
 </div>
 {% endblock %}

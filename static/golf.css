@@ -818,3 +818,217 @@ button { font-family: inherit; cursor: pointer; }
 .settings-danger { border-color: rgba(239,68,68,0.3); }
 .danger-title { color: var(--danger) !important; }
 .danger-description { font-size: 14px; color: var(--text-muted); }
+
+/* ── Tableau de saisie ────────────────────────────────────────────────────── */
+
+.saisie-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.saisie-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0 8px;
+}
+.saisie-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+}
+.btn-sm {
+    padding: 10px 16px;
+    font-size: 13px;
+}
+
+/* Wrapper avec scroll horizontal sur mobile */
+.table-wrap {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.score-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 460px;
+}
+
+/* Headers */
+.score-table thead tr {
+    background: var(--bg);
+    border-bottom: 2px solid var(--border);
+}
+
+.th-hole {
+    padding: 14px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: left;
+    white-space: nowrap;
+    min-width: 54px;
+}
+
+.th-player {
+    padding: 12px 8px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    min-width: 64px;
+}
+
+.th-sep {
+    padding: 12px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 36px;
+    background: var(--bg);
+}
+
+.th-team {
+    padding: 12px 10px;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: center;
+    min-width: 48px;
+}
+
+/* Cellules */
+.score-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+}
+
+.td-hole {
+    padding: 12px 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #005d86;
+    white-space: nowrap;
+}
+
+.td-score {
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-muted);
+    vertical-align: middle;
+}
+
+/* Score gagnant : outline coloré */
+.td-score.best-score {
+    font-weight: 900;
+    color: var(--best-color, var(--text));
+    position: relative;
+}
+.td-score.best-score::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 2.5px solid var(--best-color, #111);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.td-sep {
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    font-weight: 700;
+}
+
+.td-team-pts {
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+}
+.td-team-pts.pts-win {
+    font-size: 20px;
+}
+.td-team-pts.pts-lose {
+    opacity: 0.4;
+}
+.td-team-pts.pts-tie {
+    opacity: 0.7;
+}
+
+/* Ligne trou actif */
+.row-current {
+    background: #fffbeb !important;
+    border-left: 3px solid var(--in-progress);
+}
+.row-current .td-hole {
+    color: var(--in-progress);
+}
+
+/* Ligne trou terminé */
+.row-done:nth-child(even) {
+    background: #fafafa;
+}
+
+/* Select de score */
+.score-select {
+    width: 52px;
+    height: 42px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    padding: 0;
+    display: block;
+    margin: 0 auto;
+}
+.score-select:focus {
+    border-color: var(--in-progress);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+}
+/* Quand un score est sélectionné, fond coloré léger */
+.score-select:not([value=""]):valid {
+    background: #fffbeb;
+}
+
+/* Banner journée complète */
+.day-done-banner {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 2px solid var(--done);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #065f46;
+}
+.done-icon { font-size: 36px; }

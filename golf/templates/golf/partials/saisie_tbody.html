@@ -1,0 +1,68 @@
+{% load golf_tags %}
+{% for hd in visible_holes %}
+<tr class="{% if hd.is_current %}row-current{% else %}row-done{% endif %}">
+
+    <td class="td-hole">N°{{ hd.hole.number }}</td>
+
+    {% for p in team1_players %}
+    {% with s=hd.player_scores|dict_get:p.id best_pid=hd.best_pids|dict_get:p.team_id %}
+    <td class="td-score{% if best_pid == p.id %} best-score{% endif %}"
+        {% if best_pid == p.id %}style="--best-color:{{ p.team.color }}"{% endif %}>
+        {% if hd.is_current %}
+            <select class="score-select"
+                    hx-post="{% url 'update_score' hd.hole.id p.id %}"
+                    hx-trigger="change"
+                    hx-target="#score-tbody"
+                    hx-swap="innerHTML"
+                    hx-vals="js:{strokes: this.value}">
+                <option value="">–</option>
+                {% for n in stroke_range %}<option value="{{ n }}"{% if s == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
+            </select>
+        {% else %}
+            {% if s %}{{ s }}{% else %}–{% endif %}
+        {% endif %}
+    </td>
+    {% endwith %}
+    {% endfor %}
+
+    <td class="td-sep">
+        {% if hd.is_done %}
+            {% if hd.result.team1_points > hd.result.team2_points %}◀
+            {% elif hd.result.team2_points > hd.result.team1_points %}▶
+            {% else %}={% endif %}
+        {% else %}···{% endif %}
+    </td>
+
+    <td class="td-team-pts {% if hd.is_done %}{% if hd.result.team1_points > hd.result.team2_points %}pts-win{% elif hd.result.team1_points == hd.result.team2_points and hd.result.team1_points > 0 %}pts-tie{% else %}pts-lose{% endif %}{% endif %}"
+        style="color:{{ teams.0.color }}">
+        {% if hd.is_done %}{{ hd.result.team1_points|format_pts }}{% else %}–{% endif %}
+    </td>
+
+    <td class="td-team-pts {% if hd.is_done %}{% if hd.result.team2_points > hd.result.team1_points %}pts-win{% elif hd.result.team2_points == hd.result.team1_points and hd.result.team2_points > 0 %}pts-tie{% else %}pts-lose{% endif %}{% endif %}"
+        style="color:{{ teams.1.color }}">
+        {% if hd.is_done %}{{ hd.result.team2_points|format_pts }}{% else %}–{% endif %}
+    </td>
+
+    {% for p in team2_players %}
+    {% with s=hd.player_scores|dict_get:p.id best_pid=hd.best_pids|dict_get:p.team_id %}
+    <td class="td-score{% if best_pid == p.id %} best-score{% endif %}"
+        {% if best_pid == p.id %}style="--best-color:{{ p.team.color }}"{% endif %}>
+        {% if hd.is_current %}
+            <select class="score-select"
+                    hx-post="{% url 'update_score' hd.hole.id p.id %}"
+                    hx-trigger="change"
+                    hx-target="#score-tbody"
+                    hx-swap="innerHTML"
+                    hx-vals="js:{strokes: this.value}">
+                <option value="">–</option>
+                {% for n in stroke_range %}<option value="{{ n }}"{% if s == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
+            </select>
+        {% else %}
+            {% if s %}{{ s }}{% else %}–{% endif %}
+        {% endif %}
+    </td>
+    {% endwith %}
+    {% endfor %}
+
+</tr>
+{% endfor %}
