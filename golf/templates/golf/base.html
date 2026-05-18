@@ -1,0 +1,47 @@
+{% load static %}
+{% load golf_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>{% block title %}Golf{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'golf.css' %}">
+
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-SKVMlbqR0HOdQBcGMKMGBiHguzdQDGKPOsQEKJE0PH2GJqJO8TDXa7uBRNXFhTe" crossorigin="anonymous"></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+{% if tournament %}
+<nav class="nav">
+    <div class="nav-brand">⛳</div>
+
+    <div class="nav-days">
+        {% for d in days %}
+        <a href="{% url 'saisie' d.id 1 %}"
+           class="nav-day {% if day and d.id == day.id %}active{% endif %}">
+            J{{ d.day_number }}{% if d.is_locked %}&nbsp;🔒{% endif %}
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="nav-actions">
+        {% if day %}
+        <a href="{% url 'resultats' day.id %}" class="nav-icon" title="Résultats">📊</a>
+        {% endif %}
+        <a href="{% url 'settings' %}" class="nav-icon" title="Réglages">⚙️</a>
+    </div>
+</nav>
+{% endif %}
+
+<main class="main">
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

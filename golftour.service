@@ -1,0 +1,21 @@
+[Unit]
+Description=GolfTournament Web Application
+After=network.target
+StartLimitIntervalSec=600
+StartLimitBurst=3
+
+[Service]
+User=trotroni
+WorkingDirectory=/home/trotroni/golftour
+ExecStart=/home/trotroni/golftour/.venv/bin/gunicorn \
+    config.wsgi:application \
+    --bind 0.0.0.0:9000 \
+    --workers 2 \
+    --timeout 60
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/trotroni/golftour/logs/access.log
+StandardError=append:/home/trotroni/golftour/logs/error.log
+
+[Install]
+WantedBy=multi-user.target

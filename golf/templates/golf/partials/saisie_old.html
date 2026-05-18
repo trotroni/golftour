@@ -1,0 +1,111 @@
+{% load golf_tags %}
+<div id="saisie-form">
+
+    <!-- Cartes joueurs -->
+    {% for pd in player_data %}
+    <div class="player-card" style="--team-color: {{ pd.player.team.color }}">
+        <div class="player-card-header">
+            <span class="team-badge" style="background: {{ pd.player.team.color }}">
+                {{ pd.player.team.name }}
+            </span>
+            <span class="player-name">{{ pd.player.name }}</span>
+            {% if pd.strokes is not None %}
+            <span class="score-submitted">✓</span>
+            {% endif %}
+        </div>
+
+        {% if pd.strokes is not None %}
+        <!-- Stepper actif -->
+        <div class="stepper">
+            <button class="stepper-btn stepper-minus"
+                    hx-post="{% url 'update_score' current_hole.id pd.player.id %}"
+                    hx-vals='{"delta": "-1"}'
+                    hx-target="#saisie-form"
+                    hx-swap="outerHTML"
+                    hx-indicator=".htmx-indicator">
+                −
+            </button>
+            <span class="stepper-value" style="color: {{ pd.player.team.color }}">
+                {{ pd.strokes }}
+            </span>
+            <button class="stepper-btn stepper-plus"
+                    hx-post="{% url 'update_score' current_hole.id pd.player.id %}"
+                    hx-vals='{"delta": "1"}'
+                    hx-target="#saisie-form"
+                    hx-swap="outerHTML"
+                    hx-indicator=".htmx-indicator">
+                +
+            </button>
+        </div>
+        {% else %}
+        <!-- Bouton d'initialisation -->
+        <button class="saisir-btn"
+                style="border-color: {{ pd.player.team.color }}; color: {{ pd.player.team.color }}"
+                hx-post="{% url 'update_score' current_hole.id pd.player.id %}"
+                hx-vals='{"strokes": "4"}'
+                hx-target="#saisie-form"
+                hx-swap="outerHTML">
+            Saisir score
+        </button>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Résultat live du trou -->
+    {% if live and live.team1_best is not None or live.team2_best is not None %}
+    <div class="live-result">
+        <div class="live-title">Meilleurs scores actuels</div>
+        <div class="live-scores">
+            <div class="live-team {% if live.winner and live.winner != 'tie' and live.winner.id == live.team1.id %}live-winning{% endif %}"
+                 style="--tc: {{ live.team1.color }}">
+                <span class="live-team-name">{{ live.team1.name }}</span>
+                <span class="live-score">{% if live.team1_best %}{{ live.team1_best }}{% else %}–{% endif %}</span>
+            </div>
+            <div class="live-vs">vs</div>
+            <div class="live-team {% if live.winner and live.winner != 'tie' and live.winner.id == live.team2.id %}live-winning{% endif %}"
+                 style="--tc: {{ live.team2.color }}">
+                <span class="live-team-name">{{ live.team2.name }}</span>
+                <span class="live-score">{% if live.team2_best %}{{ live.team2_best }}{% else %}–{% endif %}</span>
+            </div>
+        </div>
+        {% if live.winner %}
+        <div class="live-verdict">
+            {% if live.winner == 'tie' %}
+            🤝 Égalité — 0.5 pt chacun
+            {% else %}
+            🏆 {{ live.winner.name }} mène
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Barre de progression -->
+    <div class="progress-bar-wrap">
+        <div class="progress-info">
+            <span>{{ submitted_count }} / {{ total_players }} scores saisis</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill"
+                 style="width: {% if total_players > 0 %}{% widthratio submitted_count total_players 100 %}{% else %}0{% endif %}%">
+            </div>
+        </div>
+    </div>
+
+    <!-- Trou complété -->
+    {% if hole_complete %}
+    <div class="hole-complete-banner">
+        <div class="complete-icon">✅</div>
+        <div class="complete-text">Trou {{ current_hole.number }} complété !</div>
+        <a href="{% url 'saisie' day.id group %}" class="btn btn-primary btn-large">
+            Trou suivant →
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Indicateur de chargement HTMX -->
+    <div class="htmx-indicator loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+</div>

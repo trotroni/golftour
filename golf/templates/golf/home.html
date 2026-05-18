@@ -1,0 +1,43 @@
+{% extends 'golf/base.html' %}
+{% block title %}{{ tournament.name }}{% endblock %}
+
+{% block content %}
+<div class="page-home">
+    <div class="home-header">
+        <div class="home-logo">⛳</div>
+        <h1 class="home-title">{{ tournament.name }}</h1>
+        <p class="home-subtitle">Sélectionne une journée</p>
+    </div>
+
+    <div class="days-grid">
+        {% for ds in day_statuses %}
+        <div class="day-card status-{{ ds.status }}">
+            <div class="day-number">Jour {{ ds.day.day_number }}</div>
+
+            <div class="day-progress">
+                <div class="day-progress-bar">
+                    <div class="day-progress-fill"
+                         style="width: {% if ds.total > 0 %}{{ ds.done|floatformat:0 }}{% else %}0{% endif %}%">
+                    </div>
+                </div>
+                <span class="day-progress-text">
+                    {% if ds.status == 'locked' %}🔒 Verrouillé
+                    {% elif ds.status == 'pending' %}Pas encore commencé
+                    {% elif ds.status == 'complete' %}✅ Terminé
+                    {% else %}{{ ds.done }} / {{ ds.total }} trous{% endif %}
+                </span>
+            </div>
+
+            <div class="day-actions">
+                {% if not ds.day.is_locked %}
+                <a href="{% url 'saisie' ds.day.id 1 %}" class="btn btn-primary">
+                    {% if ds.status == 'pending' %}Commencer{% else %}Continuer{% endif %}
+                </a>
+                {% endif %}
+                <a href="{% url 'resultats' ds.day.id %}" class="btn btn-secondary">Résultats</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

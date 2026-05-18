@@ -1,82 +1,35 @@
-{% load static %}
+{% extends 'golf/base.html' %}
+{% block title %}Trou {{ current_hole.number }} — Saisie {{ group }}{% endblock %}
 
-<html lang="fr">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Golf Saisie </title>
+{% block content %}
+<div class="saisie-page">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'dashboard.css' %}">
-</head>
-
-<body>
-
-<div class="container">
-
-    <div class="header">
-        <h1 class="title">Golf Match Jours {{ days }}</h1>
+    <!-- En-tête du trou -->
+    <div class="hole-header">
+        <div class="hole-badge">
+            Trou <span class="hole-num">{{ current_hole.number }}</span>
+            <span class="hole-total">/ {{ tournament.num_holes }}</span>
+        </div>
+        <div class="hole-day">Jour {{ day.day_number }}</div>
     </div>
 
-    <div class="card">
-        <table>
-            <thead>
-            <tr>
-                <th>Trou</th>
-                <th>J1</th>
-                <th>J2</th>
-                <th>J3</th>
-                <th>T1</th>
-                <th></th>
-                <th>T2</th>
-                <th>J4</th>
-                <th>J5</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            {% for hole in holes %}
-            <tr>
-                <td class="hole">N°{{ hole }}</td>
-
-                <td>
-                    <select class="score-select">
-                        {% for i in "123456789" %}
-                            <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-
-                <td>
-                    <select class="score-select">
-                        {% for i in "123456789" %}
-                            <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-
-                <td>
-                    <select class="score-select">
-                        {% for i in "123456789" %}
-                            <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-
-                <td class="grey">1</td>
-                <td>-</td>
-                <td class="red">0</td>
-
-                <td>5</td>
-                <td>4</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-
-        </table>
+    <!-- Onglets groupe / résultats -->
+    <div class="tabs">
+        <a href="{% url 'saisie' day.id 1 %}"
+           class="tab {% if group == 1 %}tab-active{% endif %}">
+            Groupe 1
+        </a>
+        <a href="{% url 'saisie' day.id 2 %}"
+           class="tab {% if group == 2 %}tab-active{% endif %}">
+            Groupe 2
+        </a>
+        <a href="{% url 'resultats' day.id %}" class="tab">
+            📊 Score
+        </a>
     </div>
+
+    <!-- Formulaire HTMX -->
+    {% include 'golf/partials/saisie_form.html' %}
 
 </div>
-
-</body>
-</html>
+{% endblock %}

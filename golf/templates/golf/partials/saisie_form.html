@@ -1,0 +1,42 @@
+{% extends 'golf/base.html' %}
+{% block title %}Saisie — Jour {{ day.day_number }}{% endblock %}
+
+{% block content %}
+<div class="saisie-page">
+
+    <div class="saisie-top">
+        <div class="saisie-day-label">Jour {{ day.day_number }}</div>
+        <a href="{% url 'resultats' day.id %}" class="btn btn-secondary btn-sm">📊 Résultats</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="score-table">
+            <thead>
+                <tr>
+                    <th class="col-hole">Trou</th>
+                    {% for p in players %}
+                        {% if p.team == players.0.team and forloop.first %}
+                            {# séparateur visuel avant l'équipe 1 #}
+                        {% endif %}
+                        <th class="col-player" style="color: {{ p.team.color }}">
+                            {{ p.name }}
+                        </th>
+                        {% if not forloop.last %}
+                            {% with next_player=players|slice:forloop.counter|first %}
+                                {% if next_player and next_player.team != p.team %}
+                                    <th class="col-pts">PTS</th>
+                                    <th class="col-team" style="color: {{ p.team.color }}">{{ p.team.name }}</th>
+                                    <th class="col-team" style="color: next_color">EUR</th>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            {# Thead réel avec la bonne logique #}
+        </table>
+    </div>
+
+</div>
+{% endblock %}

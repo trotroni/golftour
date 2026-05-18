@@ -1,0 +1,132 @@
+{% extends 'golf/base.html' %}
+{% load golf_tags %}
+{% block title %}Résultats — Jour {{ day.day_number }}{% endblock %}
+
+{% block content %}
+<div class="results-page">
+
+    <!-- En-tête -->
+    <div class="results-header">
+        <h1 class="results-title">Résultats — Jour {{ day.day_number }}</h1>
+        {% if day.is_locked %}
+        <span class="locked-badge">🔒 Verrouillé</span>
+        {% endif %}
+    </div>
+
+    <!-- Actions verrouillage -->
+    <div class="results-actions">
+        <a href="{% url 'saisie' day.id 1 %}" class="btn btn-secondary">← Saisie</a>
+        {% if not day.is_locked %}
+        <form method="post" action="{% url 'lock_day' day.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">🔒 Verrouiller</button>
+        </form>
+        {% else %}
+        <form method="post" action="{% url 'unlock_day' day.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">🔓 Déverrouiller</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Tableau des trous -->
+    <div class="holes-list">
+        {% for hd in holes_data %}
+        <div class="hole-row status-{{ hd.status }}">
+            <div class="hole-row-num">
+                <span class="hole-status-dot dot-{{ hd.status }}"></span>
+                <span class="hole-row-label">Trou {{ hd.hole.number }}</span>
+            </div>
+
+            {% if hd.status == 'done' %}
+            <div class="hole-row-scores">
+                {% for td in hd.team_data %}
+                <div class="hole-team-score">
+                    <span class="hole-team-name" style="color: {{ td.team.color }}">
+                        {{ td.team.name }}
+                    </span>
+                    <div class="hole-player-scores">
+                        {% for ps in td.player_scores %}
+                        <span class="hole-player-score
+                              {% if ps.player.id == td.best_pid %}best-score{% endif %}"
+                              style="{% if ps.player.id == td.best_pid %}border-color: {{ td.team.color }}; color: {{ td.team.color }}{% endif %}">
+                            {% if ps.strokes %}{{ ps.strokes }}{% else %}–{% endif %}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    <span class="hole-pts" style="color: {{ td.team.color }}">
+                        {{ td.points|format_pts }}
+                    </span>
+                </div>
+                {% if not forloop.last %}<span class="hole-sep">–</span>{% endif %}
+                {% endfor %}
+            </div>
+
+            {% elif hd.status == 'in_progress' %}
+            <div class="hole-row-status in-progress-badge">
+                ⏳ En cours
+                <span class="in-progress-count">
+                    {% with submitted=hd.hole.scores.count %}{{ submitted }}{% endwith %} / {% with total=teams|length %}—{% endwith %}
+                </span>
+            </div>
+
+            {% else %}
+            <div class="hole-row-status pending-badge">
+                · Non commencé
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Total du jour -->
+    <div class="totals-card">
+        <div class="totals-title">TOTAL JOUR {{ day.day_number }}</div>
+        <div class="totals-scores">
+            {% for team in teams %}
+            <div class="total-team-score">
+                <div class="total-team-name" style="color: {{ team.color }}">{{ team.name }}</div>
+                <div class="total-pts" style="color: {{ team.color }}">
+                    {{ day_totals|team_pts:team }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Totaux des autres jours -->
+    {% if days_data|length > 1 %}
+    <div class="days-summary">
+        <div class="days-summary-title">PAR JOURNÉE</div>
+        {% for ds in days_data %}
+        <div class="day-summary-row {% if ds.day.id == day.id %}current-day{% endif %}">
+            <span class="ds-label">Jour {{ ds.day.day_number }}{% if ds.day.is_locked %} 🔒{% endif %}</span>
+            <div class="ds-scores">
+                {% for team in teams %}
+                <span style="color: {{ team.color }}">
+                    {{ team.name }} {{ ds.totals|team_pts:team }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Total tournoi -->
+    <div class="totals-card totals-tournament">
+        <div class="totals-title">TOTAL TOURNOI</div>
+        <div class="totals-scores">
+            {% for team in teams %}
+            <div class="total-team-score">
+                <div class="total-team-name" style="color: {{ team.color }}">{{ team.name }}</div>
+                <div class="total-pts total-pts-large" style="color: {{ team.color }}">
+                    {{ tournament_totals|team_pts:team }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
