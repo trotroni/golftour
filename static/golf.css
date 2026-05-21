@@ -1032,3 +1032,47 @@ button { font-family: inherit; cursor: pointer; }
     color: #065f46;
 }
 .done-icon { font-size: 36px; }
+
+/* Ajouter à la fin de golf.css */
+
+/* Indicateur joueur du groupe actif dans le header */
+.group-dot {
+    font-size: 8px;
+    vertical-align: super;
+    margin-left: 2px;
+    opacity: 0.6;
+}
+
+/* Cellule joueur d'un autre groupe (trou actif) — grisée */
+.td-score-inactive {
+    opacity: 0.4;
+    font-style: italic;
+}
+
+/* Bouton valider */
+.btn-validate {
+    width: 100%;
+    padding: 18px;
+    font-size: 17px;
+    font-weight: 800;
+    background: #059669;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 14px rgba(5,150,105,0.3);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.btn-validate:active { transform: scale(0.97); background: #047857; }
+
+/* Message groupe déjà validé */
+.already-validated {
+    background: #ecfdf5;
+    border: 2px solid #6ee7b7;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #065f46;
+}

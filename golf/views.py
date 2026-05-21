@@ -28,9 +28,10 @@ def _build_day_statuses(tournament):
 
 def _build_table_ctx(tournament, day, group):
     """
-    Contexte pour une page de saisie d'un groupe.
-    group_team1_players / group_team2_players : joueurs du groupe affiché.
-    visible_holes : trous complétés + trou actif.
+    Contexte pour la page de saisie.
+    - team1_all / team2_all : TOUS les joueurs de chaque équipe (tous groupes confondus)
+    - group_players : joueurs du groupe actif (pour la logique de validation)
+    - player_scores dans visible_holes : scores de TOUS les joueurs
     """
     teams = list(tournament.teams.order_by('order'))
     all_players = list(
@@ -38,14 +39,15 @@ def _build_table_ctx(tournament, day, group):
         .select_related('team').order_by('team__order', 'order')
     )
 
-    # Joueurs de CE groupe seulement
+    # Tous les joueurs par équipe — colonnes du tableau complet
+    team1_all = [p for p in all_players if p.team_id == teams[0].id] if teams else []
+    team2_all = [p for p in all_players if p.team_id == teams[1].id] if len(teams) > 1 else []
+
+    # Joueurs du groupe actif seulement (validation)
     group_players = [p for p in all_players if p.saisie_group == group]
-    group_team1 = [p for p in group_players if p.team_id == teams[0].id] if teams else []
-    group_team2 = [p for p in group_players if p.team_id == teams[1].id] if len(teams) > 1 else []
 
     current_hole = get_current_hole(day)
 
-    # Scores & résultats pré-chargés (tous joueurs pour les résultats)
     all_scores = list(Score.objects.filter(hole__match_day=day).select_related('player'))
     scores_map = {(s.hole_id, s.player_id): s.strokes for s in all_scores}
     results_map = {
@@ -62,10 +64,10 @@ def _build_table_ctx(tournament, day, group):
         if not is_done and not is_current:
             continue
 
-        # Scores des joueurs du groupe pour ce trou
-        player_scores = {p.id: scores_map.get((hole.id, p.id)) for p in group_players}
+        # Scores de TOUS les joueurs pour ce trou
+        player_scores = {p.id: scores_map.get((hole.id, p.id)) for p in all_players}
 
-        # Meilleur score par équipe (sur TOUS les joueurs, pas juste le groupe)
+        # Meilleur score par équipe
         best_pids = {}
         for team in teams:
             team_all = [p for p in all_players if p.team_id == team.id]
@@ -76,7 +78,7 @@ def _build_table_ctx(tournament, day, group):
                     best = s; best_pid = p.id
             best_pids[team.id] = best_pid
 
-        # Est-ce que le groupe actuel a déjà validé ?
+        # Le groupe actif a-t-il déjà tous ses scores ?
         group_validated = all(
             scores_map.get((hole.id, p.id)) is not None
             for p in group_players
@@ -96,9 +98,9 @@ def _build_table_ctx(tournament, day, group):
         'group': group,
         'teams': teams,
         'all_players': all_players,
+        'team1_all': team1_all,
+        'team2_all': team2_all,
         'group_players': group_players,
-        'group_team1': group_team1,
-        'group_team2': group_team2,
         'visible_holes': visible_holes,
         'current_hole': current_hole,
         'stroke_range': range(1, 16),
@@ -153,7 +155,6 @@ def saisie(request, day_id, group=1):
 
 
 def saisie_tbody_partial(request, day_id, group):
-    """Partial HTMX — retourne le tbody pour un groupe donné."""
     day = get_object_or_404(MatchDay, pk=day_id)
     tournament = day.tournament
     ctx = _build_table_ctx(tournament, day, group)
@@ -161,11 +162,35 @@ def saisie_tbody_partial(request, day_id, group):
 
 
 @require_POST
+def update_score(request, hole_id, player_id):
+    hole = get_object_or_404(Hole, pk=hole_id)
+    player = get_object_or_404(Player, pk=player_id)
+    day = hole.match_day
+
+    if day.is_locked:
+        return HttpResponseForbidden()
+    current_hole = get_current_hole(day)
+    if current_hole is None or current_hole.id != hole.id:
+        return HttpResponseForbidden()
+
+    strokes_raw = request.POST.get('strokes', '').strip()
+    score_obj, _ = Score.objects.get_or_create(hole=hole, player=player)
+    if strokes_raw:
+        score_obj.strokes = max(1, min(15, int(strokes_raw)))
+        score_obj.save()
+    else:
+        score_obj.strokes = None
+        score_obj.save()
+
+    if hole.is_complete():
+        calculate_hole_result(hole)
+
+    group = player.saisie_group
+    return saisie_tbody_partial(request, day.id, group)
+
+
+@require_POST
 def validate_hole(request, hole_id, group):
-    """
-    Valide les scores du groupe pour le trou actif.
-    Calcule le résultat seulement si TOUS les joueurs (2 groupes) ont scoré.
-    """
     hole = get_object_or_404(Hole, pk=hole_id)
     day = hole.match_day
 
@@ -175,11 +200,7 @@ def validate_hole(request, hole_id, group):
     if current_hole is None or current_hole.id != hole.id:
         return HttpResponseForbidden()
 
-    # Sauvegarder uniquement les joueurs du groupe
-    players = Player.objects.filter(
-        team__tournament=day.tournament,
-        saisie_group=group
-    )
+    players = Player.objects.filter(team__tournament=day.tournament, saisie_group=group)
     for player in players:
         strokes_raw = request.POST.get(f'score_{player.id}', '').strip()
         if strokes_raw:
@@ -187,7 +208,6 @@ def validate_hole(request, hole_id, group):
             score_obj.strokes = max(1, min(15, int(strokes_raw)))
             score_obj.save()
 
-    # Calcul automatique si tous les joueurs (tous groupes) ont scoré
     if hole.is_complete():
         calculate_hole_result(hole)
 

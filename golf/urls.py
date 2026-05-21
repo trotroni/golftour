@@ -14,4 +14,5 @@ urlpatterns = [
     # HTMX
     path('htmx/tbody/<int:day_id>/<int:group>/', views.saisie_tbody_partial, name='saisie_tbody_partial'),
     path('htmx/valider/<int:hole_id>/<int:group>/', views.validate_hole, name='validate_hole'),
+    path('htmx/score/<int:hole_id>/<int:player_id>/', views.update_score, name='update_score'),
 ]

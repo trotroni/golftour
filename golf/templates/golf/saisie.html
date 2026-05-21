@@ -15,16 +15,10 @@
         <a href="{% url 'saisie' day.id 1 %}"
            class="tab {% if group == 1 %}tab-active{% endif %}">
             Groupe 1
-            <span class="tab-players">
-                {% for p in all_players %}{% if p.saisie_group == 1 %}{{ p.name }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}
-            </span>
         </a>
         <a href="{% url 'saisie' day.id 2 %}"
            class="tab {% if group == 2 %}tab-active{% endif %}">
             Groupe 2
-            <span class="tab-players">
-                {% for p in all_players %}{% if p.saisie_group == 2 %}{{ p.name }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}
-            </span>
         </a>
     </div>
 
@@ -33,14 +27,21 @@
             <thead>
                 <tr>
                     <th class="th-hole">Trou</th>
-                    {% for p in group_team1 %}
-                    <th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>
+                    {% for p in team1_all %}
+                    <th class="th-player" style="color:{{ p.team.color }}">
+                        {{ p.name }}
+                        {% if p.saisie_group == group %}<span class="group-dot"></span>{% endif %}
+                    </th>
                     {% endfor %}
-                    <th class="th-sep">PTS</th>
+                    <th class="th-sep">···</th>
                     <th class="th-team" style="color:{{ teams.0.color }}">{{ teams.0.name }}</th>
                     <th class="th-team" style="color:{{ teams.1.color }}">{{ teams.1.name }}</th>
-                    {% for p in group_team2 %}
-                    <th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>
+                    <th class="th-sep">···</th>
+                    {% for p in team2_all %}
+                    <th class="th-player" style="color:{{ p.team.color }}">
+                        {{ p.name }}
+                        {% if p.saisie_group == group %}<span class="group-dot">●</span>{% endif %}
+                    </th>
                     {% endfor %}
                 </tr>
             </thead>
