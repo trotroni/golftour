@@ -22,27 +22,21 @@
         </a>
     </div>
 
+    {% if current_hole %}
+    {% with last_hole=visible_holes|last %}
+
+    {% if last_hole and last_hole.group_validated %}
+    <!-- Groupe déjà validé — tableau en lecture seule, pas de form -->
     <div class="table-wrap">
         <table class="score-table">
             <thead>
                 <tr>
                     <th class="th-hole">Trou</th>
-                    {% for p in team1_all %}
-                    <th class="th-player" style="color:{{ p.team.color }}">
-                        {{ p.name }}
-                        {% if p.saisie_group == group %}<span class="group-dot"></span>{% endif %}
-                    </th>
-                    {% endfor %}
-                    <th class="th-sep">···</th>
+                    {% for p in team1_all %}<th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>{% endfor %}
+                    <th class="th-sep">PTS</th>
                     <th class="th-team" style="color:{{ teams.0.color }}">{{ teams.0.name }}</th>
                     <th class="th-team" style="color:{{ teams.1.color }}">{{ teams.1.name }}</th>
-                    <th class="th-sep">···</th>
-                    {% for p in team2_all %}
-                    <th class="th-player" style="color:{{ p.team.color }}">
-                        {{ p.name }}
-                        {% if p.saisie_group == group %}<span class="group-dot">●</span>{% endif %}
-                    </th>
-                    {% endfor %}
+                    {% for p in team2_all %}<th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>{% endfor %}
                 </tr>
             </thead>
             <tbody id="score-tbody">
@@ -50,35 +44,65 @@
             </tbody>
         </table>
     </div>
+    <div class="already-validated">
+        ✅ Groupe {{ group }} validé — en attente de l'autre groupe…
+    </div>
 
-    {% if current_hole %}
-        {% if visible_holes %}
-            {% with last_hole=visible_holes|last %}
-                {% if last_hole.group_validated %}
-                <div class="already-validated">
-                    ✅ Groupe {{ group }} déjà validé pour le trou {{ current_hole.number }}.
-                    En attente de l'autre groupe…
-                </div>
-                {% else %}
-                <button class="btn btn-validate"
-                        hx-post="{% url 'validate_hole' current_hole.id group %}"
-                        hx-include=".score-select"
-                        hx-target="#score-tbody"
-                        hx-swap="innerHTML">
-                    ✅ Valider trou {{ current_hole.number }} — Groupe {{ group }}
-                </button>
-                {% endif %}
-            {% endwith %}
-        {% else %}
-        <button class="btn btn-validate"
-                hx-post="{% url 'validate_hole' current_hole.id group %}"
-                hx-include=".score-select"
-                hx-target="#score-tbody"
-                hx-swap="innerHTML">
+    {% else %}
+    <!-- Form actif avec tableau + bouton -->
+    <form id="saisie-form"
+          hx-post="{% url 'validate_hole' current_hole.id group %}"
+          hx-target="#score-tbody"
+          hx-swap="innerHTML"
+          method="post"
+          action="{% url 'validate_hole' current_hole.id group %}">
+        {% csrf_token %}
+
+        <div class="table-wrap">
+            <table class="score-table">
+                <thead>
+                    <tr>
+                        <th class="th-hole">Trou</th>
+                        {% for p in team1_all %}<th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>{% endfor %}
+                        <th class="th-sep">PTS</th>
+                        <th class="th-team" style="color:{{ teams.0.color }}">{{ teams.0.name }}</th>
+                        <th class="th-team" style="color:{{ teams.1.color }}">{{ teams.1.name }}</th>
+                        {% for p in team2_all %}<th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>{% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="score-tbody">
+                    {% include 'golf/partials/saisie_tbody.html' %}
+                </tbody>
+            </table>
+        </div>
+
+        <button type="submit" class="btn btn-validate">
             ✅ Valider trou {{ current_hole.number }} — Groupe {{ group }}
         </button>
-        {% endif %}
+    </form>
+    {% endif %}
+
+    {% endwith %}
+
     {% else %}
+    <!-- Tous les trous terminés -->
+    <div class="table-wrap">
+        <table class="score-table">
+            <thead>
+                <tr>
+                    <th class="th-hole">Trou</th>
+                    {% for p in team1_all %}<th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>{% endfor %}
+                    <th class="th-sep">PTS</th>
+                    <th class="th-team" style="color:{{ teams.0.color }}">{{ teams.0.name }}</th>
+                    <th class="th-team" style="color:{{ teams.1.color }}">{{ teams.1.name }}</th>
+                    {% for p in team2_all %}<th class="th-player" style="color:{{ p.team.color }}">{{ p.name }}</th>{% endfor %}
+                </tr>
+            </thead>
+            <tbody id="score-tbody">
+                {% include 'golf/partials/saisie_tbody.html' %}
+            </tbody>
+        </table>
+    </div>
     <div class="day-done-banner">
         <span class="done-icon">✅</span>
         <span>Tous les trous sont complétés !</span>

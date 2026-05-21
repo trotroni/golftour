@@ -211,7 +211,9 @@ def validate_hole(request, hole_id, group):
     if hole.is_complete():
         calculate_hole_result(hole)
 
-    return saisie_tbody_partial(request, day.id, group)
+    return redirect('saisie', day_id=day.id, group=group)
+
+    #return saisie_tbody_partial(request, day.id, group)
 
 
 # ── Résultats ─────────────────────────────────────────────────────────────────

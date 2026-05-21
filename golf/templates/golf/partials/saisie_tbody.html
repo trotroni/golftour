@@ -4,37 +4,24 @@
 
     <td class="td-hole">N°{{ hd.hole.number }}</td>
 
-    {# ── Colonnes équipe 1 (tous ses joueurs) ── #}
     {% for p in team1_all %}
     {% with s=hd.player_scores|dict_get:p.id best_pid=hd.best_pids|dict_get:p.team_id %}
     <td class="td-score{% if best_pid == p.id %} best-score{% endif %}"
         {% if best_pid == p.id %}style="--best-color:{{ p.team.color }}"{% endif %}>
         {% if hd.is_current and p.saisie_group == group %}
-            {# Joueur de ce groupe → select éditable #}
-            <select class="score-select"
-                    name="score_{{ p.id }}"
-                    hx-post="{% url 'update_score' hd.hole.id p.id %}"
-                    hx-trigger="change"
-                    hx-target="#score-tbody"
-                    hx-swap="innerHTML"
-                    hx-vals="js:{strokes: this.value}">
+            <select name="score_{{ p.id }}" class="score-select">
                 <option value="">–</option>
                 {% for n in stroke_range %}<option value="{{ n }}"{% if s == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
             </select>
         {% else %}
-            {# Autre groupe ou trou terminé → valeur seule #}
-            {% if s %}{{ s }}{% else %}–{% endif %}
+            <span class="{% if hd.is_current %}td-other-group{% endif %}">{% if s %}{{ s }}{% else %}–{% endif %}</span>
         {% endif %}
     </td>
     {% endwith %}
     {% endfor %}
 
-    {# ── Séparateur + points ── #}
     <td class="td-sep">
-        {% if hd.is_done %}
-            {% if hd.result.team1_points > hd.result.team2_points %}◀
-            {% elif hd.result.team2_points > hd.result.team1_points %}▶
-            {% else %}={% endif %}
+        {% if hd.is_done %}{% if hd.result.team1_points > hd.result.team2_points %}◀{% elif hd.result.team2_points > hd.result.team1_points %}▶{% else %}={% endif %}
         {% else %}···{% endif %}
     </td>
 
@@ -48,32 +35,17 @@
         {% if hd.is_done %}{{ hd.result.team2_points|format_pts }}{% else %}–{% endif %}
     </td>
 
-    <td class="td-sep">
-        {% if hd.is_done %}
-            {% if hd.result.team1_points > hd.result.team2_points %}◀
-            {% elif hd.result.team2_points > hd.result.team1_points %}▶
-            {% else %}={% endif %}
-        {% else %}···{% endif %}
-    </td>
-
-    {# ── Colonnes équipe 2 (tous ses joueurs) ── #}
     {% for p in team2_all %}
     {% with s=hd.player_scores|dict_get:p.id best_pid=hd.best_pids|dict_get:p.team_id %}
     <td class="td-score{% if best_pid == p.id %} best-score{% endif %}"
         {% if best_pid == p.id %}style="--best-color:{{ p.team.color }}"{% endif %}>
         {% if hd.is_current and p.saisie_group == group %}
-            <select class="score-select"
-                    name="score_{{ p.id }}"
-                    hx-post="{% url 'update_score' hd.hole.id p.id %}"
-                    hx-trigger="change"
-                    hx-target="#score-tbody"
-                    hx-swap="innerHTML"
-                    hx-vals="js:{strokes: this.value}">
+            <select name="score_{{ p.id }}" class="score-select">
                 <option value="">–</option>
                 {% for n in stroke_range %}<option value="{{ n }}"{% if s == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
             </select>
         {% else %}
-            {% if s %}{{ s }}{% else %}–{% endif %}
+            <span class="{% if hd.is_current %}td-other-group{% endif %}">{% if s %}{{ s }}{% else %}–{% endif %}</span>
         {% endif %}
     </td>
     {% endwith %}
